@@ -4,12 +4,11 @@
 
 packages_default:
   - ansible
+  - ansible-core
   - ansible-lint
   - colordiff
-  - code
   - dconf-editor
   - etckeeper
-  - gh
   - git
   - git-lfs
   - glances
@@ -22,6 +21,8 @@ packages_default:
   - guvcview
   - htop
   - powertop
+  - pykickstart
+  - python-passlib
   - rmlint
   - seahorse
   - smartmontools
@@ -33,6 +34,7 @@ packages_default:
   - vim-enhanced
   - vim-X11
   - xclip
+  - zsh
 
 # In case someone doesn't want some of the default packages installed:
 packages_default_mask: []

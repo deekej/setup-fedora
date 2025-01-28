@@ -5,6 +5,13 @@
 
 hostname_FQDN:  Normandy-SR3.deekej.io
 
+kickstart_network_hostname: Normandy-SR3.deekej.io
+kickstart_network_devices:
+  - enp5s0
+
+# NOTE: The disk id needs to be manually specified before every installation!!
+kickstart_disk_id: ata-WDC_WDS500G1R0A-68A4W0_23464V801616
+
 # ---| Partitions Configuration |----------------------------------------------
 NTFS_mounts:  true
 
@@ -18,25 +25,9 @@ NTFS_mount_points:
   - device:       /dev/sdc1
     mount_point:  /mnt/Scratch
 
-# ---| DNF repos configuration |-----------------------------------------------
-nVidia_drivers: true
-
-# ---| Layered packages configuration |----------------------------------------
-install_drivers:                true
-drivers_nVidia_suspend_fix:     true
-drivers_nVidia_powerd_service:  false
-
-drivers_nVidia_extra:
-  - nvidia-driver-NvFBCOpenGL
-  - nvenc
-
 # ---| Flatpak packages configuration |----------------------------------------
 # NOTE: In case of failure of flatpak packages installation, you might
 #       (most likely) need to specify which branch to use - after the slashes: //
-
-# NOTE: Flatpak for nVidia drivers is pulled in automatically for each version.
-flatpak_packages_extra_drivers:
-  - org.freedesktop.Platform.GL.default//21.08
 
 flatpak_packages_extra_user:
   - com.spotify.Client                    # Music Streamer

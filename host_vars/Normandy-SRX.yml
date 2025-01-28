@@ -5,6 +5,14 @@
 
 hostname_FQDN:  Normandy-SRX.deekej.io
 
+kickstart_network_hostname: Normandy-SRX.deekej.io
+kickstart_network_devices:
+  - wlp1s0        # WiFi
+  - enp198s0f4u1  # Ethernet dongle
+
+# NOTE: The disk id needs to be manually specified before every installation!!
+kickstart_disk_id: nvme-eui.002538bc31b0c263
+
 # ---| Partitions Configuration |----------------------------------------------
 NTFS_mounts:  false
 

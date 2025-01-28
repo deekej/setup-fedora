@@ -1,22 +1,20 @@
 ---
 # vim: filetype=yaml.ansible
 # --------------------------
-# Shared configuration between all Fedora Silverblue installations
+# Shared configuration between all Silverblue installations
 
 # ---| Default User Configuration |--------------------------------------------
-display_name: Dee'Kej
-username:     deekej
-user_id:      117813
-group_id:     117813
+displayed_name: Dee'Kej
+username:       deekej
+homedir:        /var/home/{{ username }}
 
-subuid_start: 10000
-subgid_start: 10000
+uid:            117813
+gid:            117813
 
-groups_membership:
-  - "{{ username }}"
-  - wheel
+subuid_start:   10000
+subgid_start:   10000
 
-# NOTE: Yes, I am using the same password on both latop & desktop. Sue me! :D
+# NOTE: Yes, I'm using the same password on both latop & desktop. Sue me! :D
 user_login_shell:     /bin/zsh
 user_password_plain:  !vault |
   $ANSIBLE_VAULT;1.1;AES256
@@ -35,12 +33,81 @@ root_password_plain:  !vault |
   6139333939353339320a633931653133633534343434623032316434653363303530323963663636
   3136
 
+# ---| Kickstart File Configuration |------------------------------------------
+kickstart_setup_password: !vault |
+  $ANSIBLE_VAULT;1.1;AES256
+  30646661376132623334656465316233623963323035306566303334666635613365333636663033
+  6330633138616638303764343138643132623137616639660a643236626431643637306139343637
+  62313166393036646631376430613534623164396532663163616134346232633237616539373766
+  6435303034333339620a396463613732363230613864613137343662343938363938386630393437
+  3166
+
+kickstart_fedora_arch: x86_64
+
+kickstart_system_language: en_US.UTF-8
+kickstart_keyboard_layout: cz
+
+kickstart_time_server: time.cloudflare.com
+kickstart_time_zone: Europe/Prague
+kickstart_time_nts: true
+
+kickstart_setup_pubkey: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIzl27MyyzdjKSHvBpFYmILPkjlfr/DAAXNa9Hcc1L+o admin@deekej.io"
+
+kickstart_services_disabled:
+  - NetworkManager-wait-online
+
+kickstart_services_enabled:
+  - sshd
+
 # ---| Partitions Configuration |----------------------------------------------
+kickstart_subvolumes:
+  - path: "/var/home/{{ username }}"
+    name: "{{ username }}"
+
+  - path: "/var/home/{{ username }}/.backups"
+    name: "{{ username }}.backups"
+
+  - path: "/var/home/{{ username }}/.cache"
+    name: "{{ username }}.cache"
+
+  - path: "/var/home/{{ username }}/.local/share/containers"
+    name: "{{ username }}.containers"
+
+  - path: "/var/home/{{ username }}/.var"
+    name: "{{ username }}.var"
+
+  - path: "/var/home/{{ username }}/build"
+    name: "{{ username }}.build"
+
+  - path: "/var/home/{{ username }}/devel"
+    name: "{{ username }}.devel"
+
+  - path: "/var/home/{{ username }}/Documents"
+    name: "{{ username }}.documents"
+
+  - path: "/var/home/{{ username }}/Downloads"
+    name: "{{ username }}.downloads"
+
+  - path: "/var/home/{{ username }}/Dropbox"
+    name: "{{ username }}.dropbox"
+
+  - path: "/var/home/{{ username }}/Music"
+    name: "{{ username }}.music"
+
+  - path: "/var/home/{{ username }}/Pictures"
+    name: "{{ username }}.pictures"
+
+  - path: "/var/home/{{ username }}/Videos"
+    name: "{{ username }}.videos"
+
 btrfs_subvolumes:
   - "{{ username }}"
   - "{{ username }}.backups"
   - "{{ username }}.build"
   - "{{ username }}.cache"
+  - "{{ username }}.containers"
+  - "{{ username }}.var"
+  # ---------------------------
   - "{{ username }}.devel"
   - "{{ username }}.documents"
   - "{{ username }}.downloads"
@@ -58,9 +125,10 @@ btrfs_subvolumes_nodatacow:
   - "{{ username }}.backups"
   - "{{ username }}.build"
   - "{{ username }}.cache"
+  - "{{ username }}.containers"
   - "{{ username }}.downloads"
 
-tmpfs_size:   8G
+tmpfs_size: 24G
 
 # ---| Layered packages configuration |----------------------------------------
 base_packages_to_remove:
@@ -68,6 +136,13 @@ base_packages_to_remove:
   - gnome-terminal-nautilus
 
 packages_to_remove: []
+
+# TODO:
+# 1) Add VSCode + Slack + brave repository
+# 2) Remove Google Chrome repository
+# 3) Remove nVidia drivers + repo
+# 4) Check negativo's repositories
+# 5) AMD drivers?
 
 packages_extra_user:
   - nemo
@@ -77,7 +152,6 @@ packages_extra_user:
   - nemo-seahorse
 
 packages_extra_work:
-  - google-chrome-stable
   - krb5-workstation
   - openldap-clients
   - pass
@@ -85,7 +159,7 @@ packages_extra_work:
   - screen
   - virt-manager
   - virt-viewer           # temporary until Gnome Connections supports SPICE
-  - wl-clipboard          # dependency for pass
+  #- wl-clipboard          # dependency for pass
 
 packages_extra_theme:
   - arc-theme
@@ -93,9 +167,7 @@ packages_extra_theme:
   - mint-x-icons
 
 packages_extra_codecs:
-  - ffmpeg-free
   - gstreamer1-plugin-openh264
-  - gstreamer1-plugins-ugly
 
 packages_extra_plugins: []
 
@@ -103,27 +175,26 @@ packages_extra_utilities:
   - ascii
   - asciinema
   - autojump-zsh
+  - code
   - ctags
   - fzf
+  - gh
   - peek
   - python-msgpack
   - python-neovim
   - rar
   - screenkey
-  - task
-  - taskopen
   - thefuck
   - wavemon
   - wmctrl
   - youtube-dl
-  - zsh
   - zsh-autosuggestions
   - zsh-lovers
   - zsh-syntax-highlighting
 
 # ---| Flatpak packages configuration |----------------------------------------
 flatpak_packages_to_remove:
-  - com.gexperts.Tilix                      # Installed as RPM package instead
+  - com.gexperts.Tilix                    # Installed as RPM package instead
 
 # NOTE: In case of failure of flatpak packages installation, you might
 #       (most likely) need to specify which branch to use - after the slashes: //
@@ -135,10 +206,7 @@ flatpak_packages_extra_user:
   - org.inkscape.Inkscape                 # Vector Editor
   - org.telegram.desktop                  # Instant Messaging App
 
-flatpak_packages_extra_work:
-  - im.riot.Riot                          # Element Instant Messaging App for Matrix
-  - io.github.Hexchat                     # IRC App
-  - org.mozilla.firefox                   # Second Firefox for a separate browsing profile
+flatpak_packages_extra_work: []
 
 # Runtimes for additional themes:
 flatpak_packages_extra_theme:
@@ -148,8 +216,8 @@ flatpak_packages_extra_theme:
 
 # Codecs for VLC/Firefox in flatpak:
 flatpak_packages_extra_codecs:
-  - org.freedesktop.Platform.ffmpeg-full//21.08
-  - org.freedesktop.Platform.openh264//2.0
+  - org.freedesktop.Platform.ffmpeg-full
+  - org.freedesktop.Platform.openh264
 
 flatpak_packages_extra_runtimes:
   - org.telegram.desktop.webview
