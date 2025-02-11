@@ -8,11 +8,11 @@ displayed_name: Dee'Kej
 username:       deekej
 homedir:        /var/home/{{ username }}
 
-uid:            117813
-gid:            117813
+user_id:        117813
+group_id:       117813
 
-subuid_start:   10000
-subgid_start:   10000
+subuid_start:   10240
+subgid_start:   10240
 
 # NOTE: Yes, I'm using the same password on both latop & desktop. Sue me! :D
 user_login_shell:     /bin/zsh

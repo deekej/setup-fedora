@@ -1,16 +1,59 @@
 ---
 # vim: filetype=yaml.ansible
 # --------------------------
-# Primary user configuration
-#
-# Run only if /etc/.setup/user-config is not yet DONE...
 
-- name: Check if the user configuration is DONE
-  shell: cat /etc/.setup/user-config 2> /dev/null || echo 'IN PROGRESS'
-  register: user_config_status
-  changed_when: user_config_status.stdout != 'DONE'
+- name: Generate salted password hash for '{ username }}'
+  shell: echo "{{ user_password_plain }}" | mkpasswd --method=yescrypt --stdin
+  register: mkpasswd_user
 
-- name: Run the user-config role
-  include_tasks: user-config.yml
-  when: user_config_status.stdout != 'DONE'
+- name: Generate salted password hash for 'root'
+  shell: echo "{{ root_password_plain }}" | mkpasswd --method=yescrypt --stdin
+  register: mkpasswd_root
 
+- name: Store the salted password hashes into variables
+  set_fact:
+    user_password_hash: "{{ mkpasswd_user.stdout }}"
+    root_password_hash: "{{ mkpasswd_root.stdout }}"
+
+# -----------------------------------------------------------------------------
+
+- name: Create a primary group for {{ username }} [{{ group_id }}]
+  group:
+    gid:    "{{ group_id }}"
+    name:   "{{ username }}"
+    state:  present
+
+- name: Create a new user [{{ username }}] with user ID == {{ user_id }}
+  user:
+    comment:  "{{ displayed_name }}"
+    name:     "{{ username }}"
+    uid:      "{{ user_id }}"
+    group:    "{{ username }}"
+    groups:   "{{ groups_membership }}"
+    password: "{{ user_password_hash }}"
+    shell:    "{{ user_login_shell }}"
+    append:   true
+
+# -----------------------------------------------------------------------------
+
+- name: Update the 'root' user password
+  user:
+    comment:  root
+    name:     root
+    uid:      0
+    group:    0
+    password: "{{ root_password_hash }}"
+    shell:    "{{ root_login_shell }}"
+
+# -----------------------------------------------------------------------------
+
+# This one is needed to be able to run Toolboxes on Silverblue:
+- name: Create additional subuid and subgid to run rootless containers
+  command:
+    argv:
+      - usermod
+      - --add-subuids
+      - "{{ subuid_start }}-{{ subuid_start + subuid_range }}"
+      - --add-subgids
+      - "{{ subgid_start }}-{{ subgid_start + subgid_range }}"
+      - "{{ username }}"
