@@ -1,72 +1,73 @@
 ---
 # vim: filetype=yaml.ansible
+# --------------------------
 
-- hosts: localhost
-  become: yes
-  become_user: root
-  vars:
-    force: False
+- name: Configure a (freshly installed) Fedora Silverblue machine
+  hosts: "{{ host }}"
 
   # TODO:
   #   - Create a separate vars file with Gnome configuration to use with:
   #     * https://github.com/PeterMosmans/ansible-role-customize-gnome
   #     * https://galaxy.ansible.com/PeterMosmans/customize-gnome
-  #
-  #   - Create a separate playbook for configuration of toolboxes
 
   # TODO: Investigate how to make this work more naturally (in Ansible-way).
   pre_tasks:
-    - name: Check the hostname is not 'localhost'
-      fail:
-        msg: "hostname 'localhost' is not supported"
-      when: ansible_hostname == 'localhost'
+    - name: Ensure we use the correct hostname
+      delegate_to: controller
+      tags: always
+      block:
+        - name: Check the config file exists for "{{ ansible_hostname }}"
+          stat:
+            path: "host_vars/{{ ansible_hostname }}.yml"
+          register: config_path
+          changed_when: false
 
-    - name: Check the config file exists for "{{ ansible_hostname }}"
-      stat:
-        path: "host_vars/{{ ansible_hostname }}.yaml"
-      register: config_path
+        - name: Fail if the config file does not exist
+          fail:
+            msg: "host_vars/{{ ansible_hostname }}.yml config file does not exist. Is the correct host set?"
+          when: not config_path.stat.exists
 
-    - name: Fail if the config file does not exist
-      fail:
-        msg: "host_vars/{{ ansible_hostname }}.yaml config file does not exist. Is the correct hostname set?"
-      when: not config_path.stat.exists
+    - name: Check if the initial setup was previously finished
+      lineinfile:
+        path: /etc/.initial-setup
+        state: absent
+        search_string: DONE
+      register: initial_setup_check
+      check_mode: true
+      failed_when: false
+      changed_when: false
 
-    - name: Source the correct config file for "{{ ansible_hostname }}"
-      include_vars: "host_vars/{{ ansible_hostname }}.yaml"
+    - name: Set the 'initial_setup' variable accordingly
+      set_fact:
+        initial_setup: "{{ (initial_setup_check.found|bool) | ternary(false, true) }}"
 
-    - name: Make sure the machine has FQDN hostname set
-      hostname:
-        name: "{{ hostname_FQDN }}"
-        use: systemd
-
-    - name: Force re-run of all the configuration operations
+    - name: Initialize the remote_tmp [~/.ansible/tmp] for 'root' user
       file:
-        path:   /etc/.setup
-        state:  "{{ item }}"
-        owner:  root
-        group:  root
-        mode:   '0700'
-      with_items:
-        - absent
-        - directory
-      when: force | bool
+        path:     /root/.ansible/tmp
+        state:    directory
+        recurse:  true
+        owner:    root
+        group:    root
+        mode:     '0700'
 
   # ---------------------------------------------------------------------------
 
   roles:
-    - user-config
     - partitions-config
-    - dnf-config
-    - layered-packages
-    - flatpak-packages
-    - system-config
-    - system-tweaks
-    - user-environment
+    #- dnf-config
+    #- layered-packages
+    #- flatpak-packages
+    #- system-config
+    #- system-tweaks
+    #- user-config
+    #- user-environment
 
   # ---------------------------------------------------------------------------
 
-#  post_tasks:
-#    - name: Cleanup of /etc/.setup
-#      file:
-#        path:   /etc/.setup
-#        state:  absent
+  #post_tasks:
+  #  - name: Mark the initial setup as DONE
+  #    lineinfile:
+  #      path:   /etc/.initial-setup
+  #      line:   DONE
+  #      state:  present
+  #      regexp: TODO
