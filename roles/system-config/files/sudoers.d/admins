@@ -1,2 +1,0 @@
-## Allow 'wheel' group to use passwordless sudo
-%wheel	ALL=(ALL)	NOPASSWD: ALL

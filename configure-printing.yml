@@ -1,0 +1,16 @@
+---
+# vim: filetype=yaml.ansible
+# --------------------------
+
+- name: Configure printing on (freshly) installed Silverblue
+  hosts: controller
+
+  tasks:
+    # NOTE: In order to configure the SecurePrint we need to be connected to VPN.
+    - name: Establish the pre-configured VPN connection
+      command: vpnup
+
+    # https://redhat.service-now.com/help?id=kb_article_view&sysparm_article=KB0024524
+    - name: Configure the EMEA SecurePrint [Red Hat]
+      command: lpadmin -p redhat-printer -E -v ipp://fra-rps02.win.redhat.com:631/ipp/print/EMEA_SecurePrint_IPP -m everywhere -D 'Red Hat | EMEA Secure Print'
+

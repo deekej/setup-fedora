@@ -50,16 +50,33 @@
         group:    root
         mode:     '0700'
 
+    # -----------------------------------------------------------------------------
+
+    # NOTE: Temporary workaround - expected to be fixed in Fedora 42.
+    #       https://gitlab.com/fedora/ostree/sig/-/issues/6
+    - name: Use the correct keyboard layout when unlocking the LUKS partition [WORKAROUND / FIX]
+      command: rpm-ostree initramfs-etc --track=/etc/vconsole.conf
+      register: command
+      changed_when: command.stdout != 'No changes.'
+
+    - name: Reboot the machine for the changes to take effect
+      when: command.stdout != 'No changes.'
+      reboot:
+        pre_reboot_delay:   "{{ pre_reboot_delay }}"
+        reboot_timeout:     "{{ reboot_timeout }}"
+        post_reboot_delay:  "{{ post_reboot_delay }}"
+
   # ---------------------------------------------------------------------------
 
   roles:
-    - partitions-config
+    #- tpm-config
     #- dnf-config
     #- layered-packages
-    #- flatpak-packages
+    #- users-config
+    #- subvolumes-config
     #- system-config
-    #- system-tweaks
-    #- user-config
+    - system-tweaks
+    #- flatpak-packages
     #- user-environment
 
   # ---------------------------------------------------------------------------
@@ -71,3 +88,29 @@
   #      line:   DONE
   #      state:  present
   #      regexp: TODO
+
+# ---| TODO |------------------------------------------------------------------
+
+#- name: Copy substitued GRUB2 config to /boot/grub2 folder
+#  template:
+#    src:    templates/grub2-user.cfg.j2
+#    dest:   /boot/grub2/user.cfg
+#    owner:  root
+#    group:  root
+#    mode:   '0644'
+#  register: grubcfg
+#
+#- name: Run follow-up tasks after updating /boot/grub2/user.cfg file
+#  when: grubcfg.changed|bool
+#  block:
+#    - name: Restore SELinux context for the /boot/grub2/user.cfg file
+#      command: restorecon -F /boot/grub2/user.cfg
+#
+#    - name: Update the GRUB configuration
+#      command: grub2-mkconfig -o /boot/grub2/grub.cfg
+#
+#    - name: Reboot the machine for the changes to take effect
+#      reboot:
+#        pre_reboot_delay:   "{{ pre_reboot_delay }}"
+#        reboot_timeout:     "{{ reboot_timeout }}"
+#        post_reboot_delay:  "{{ post_reboot_delay }}"

@@ -11,10 +11,10 @@ QGROUP=""
 
 
 # fraction of the filesystems space the snapshots may use
-SPACE_LIMIT="0.3"
+SPACE_LIMIT="0.2"
 
 # fraction of the filesystems space that should be free
-FREE_LIMIT="0.3"
+FREE_LIMIT="0.5"
 
 
 # users and groups allowed to work with config
@@ -49,9 +49,10 @@ TIMELINE_CLEANUP="yes"
 # limits for timeline cleanup
 TIMELINE_MIN_AGE="3600"
 TIMELINE_LIMIT_HOURLY="0"
-TIMELINE_LIMIT_DAILY="1"
-TIMELINE_LIMIT_WEEKLY="1"
+TIMELINE_LIMIT_DAILY="2"
+TIMELINE_LIMIT_WEEKLY="3"
 TIMELINE_LIMIT_MONTHLY="2"
+TIMELINE_LIMIT_QUARTERLY="0"
 TIMELINE_LIMIT_YEARLY="1"
 
 
@@ -60,4 +61,5 @@ EMPTY_PRE_POST_CLEANUP="yes"
 
 # limits for empty pre-post-pair cleanup
 EMPTY_PRE_POST_MIN_AGE="1800"
+
 

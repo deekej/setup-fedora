@@ -3,6 +3,11 @@
 # --------------------------
 # Shared configuration between all Silverblue installations
 
+# Machine reboot configuration:
+reboot_timeout:     1800
+post_reboot_delay:  15
+pre_reboot_delay:   5
+
 # ---| Default User Configuration |--------------------------------------------
 displayed_name: Dee'Kej
 username:       deekej
@@ -100,6 +105,8 @@ kickstart_subvolumes:
   - path: "/var/home/{{ username }}/Videos"
     name: "{{ username }}.videos"
 
+tmpfs_size: 24G
+
 btrfs_subvolumes:
   - "{{ username }}"
   - "{{ username }}.backups"
@@ -128,21 +135,62 @@ btrfs_subvolumes_nodatacow:
   - "{{ username }}.containers"
   - "{{ username }}.downloads"
 
-tmpfs_size: 24G
+home_subfolders:
+  - path: .backups
+    mode: '0700'
+
+  - path: .cache
+    mode: '0700'
+
+  - path: .var
+    mode: '0700'
+
+  # --------------
+
+  - path: .config
+    mode: '0755'
+
+  - path: .local
+    mode: '0755'
+
+  - path: .local/share
+    mode: '0755'
+
+  - path: build
+    mode: '0755'
+
+  - path: devel
+    mode: '0755'
+
+  - path: Documents
+    mode: '0755'
+
+  - path: Downloads
+    mode: '0755'
+
+  - path: Dropbox
+    mode: '0755'
+
+  - path: Music
+    mode: '0755'
+
+  - path: Pictures
+    mode: '0755'
+
+  - path: Videos
+    mode: '0755'
 
 # ---| Layered packages configuration |----------------------------------------
+repos_to_enable:
+  - fedora-steam.repo
+
+repos_to_disable:
+  - '_copr:copr.fedorainfracloud.org:phracek:PyCharm.repo'
+
 base_packages_to_remove:
-  - gnome-terminal
-  - gnome-terminal-nautilus
+  - ptyxis
 
 packages_to_remove: []
-
-# TODO:
-# 1) Add VSCode + Slack + brave repository
-# 2) Remove Google Chrome repository
-# 3) Remove nVidia drivers + repo
-# 4) Check negativo's repositories
-# 5) AMD drivers?
 
 packages_extra_user:
   - nemo
@@ -157,6 +205,7 @@ packages_extra_work:
   - pass
   - pass-otp
   - screen
+  - slack
   - virt-manager
   - virt-viewer           # temporary until Gnome Connections supports SPICE
   #- wl-clipboard          # dependency for pass
@@ -199,6 +248,8 @@ flatpak_packages_to_remove:
 # NOTE: In case of failure of flatpak packages installation, you might
 #       (most likely) need to specify which branch to use - after the slashes: //
 flatpak_packages_extra_user:
+  # Bitwarden
+  # Proton Mail / Calendar
   - com.spotify.Client                    # Music Streamer
   - org.soundconverter.SoundConverter     # Sound Converter
   - org.gnome.EasyTAG                     # ID3 editor for MP3
@@ -228,15 +279,18 @@ etckeeper_git_email:  admin@deekej.io
 
 passwordless_sudo:    true
 
+TPM_config:           false
 laptop_config:        false
 redhat_work_config:   true
-CUPS_on_LDAP_server:  false
 
 # Start week on Monday:
 locale_LC_TIME:       en_GB.UTF-8
 
-# ---| Gnome configuration |---------------------------------------------------
-gnome_user:   "{{ username }}"
+# ---| GNOME configuration |---------------------------------------------------
+gnome_user:           "{{ username }}"
+
+# TODO: DCONF settings
+
 gnome_extensions:
   # https://extensions.gnome.org/extension/6/applications-menu/
   - id:     6

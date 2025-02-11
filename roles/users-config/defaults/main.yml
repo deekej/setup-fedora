@@ -1,7 +1,7 @@
 ---
 # vim: filetype=yaml.ansible
 # --------------------------
-# User configuration:
+# Users configuration:
 
 displayed_name: Initial Setup
 username:       setup
@@ -17,6 +17,8 @@ subgid_range: 32768
 groups_membership:
   - "{{ username }}"
   - wheel
+
+root_password_lock: true
 
 login_shell:    /bin/bash
 password_plain: initial.setup

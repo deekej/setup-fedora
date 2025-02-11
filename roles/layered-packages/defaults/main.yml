@@ -6,6 +6,7 @@ packages_default:
   - ansible
   - ansible-core
   - ansible-lint
+  - brave-browser
   - colordiff
   - dconf-editor
   - etckeeper
@@ -14,13 +15,11 @@ packages_default:
   - glances
   - gnome-extensions-app
   - gnome-shell-extension-gpaste
-  - gnome-shell-extension-openweather
   - gnome-tweaks
   - gpaste
   - gpaste-ui
   - guvcview
   - htop
-  - powertop
   - pykickstart
   - python-passlib
   - rmlint
@@ -54,21 +53,3 @@ base_packages_to_remove: []
 
 # Packages to be removed if previously installed by the user:
 packages_to_remove: []
-
-# -----------------------------------------------------------------------------
-
-install_drivers:                false
-drivers_nVidia_suspend_fix:     false
-drivers_nVidia_powerd_service:  true
-
-drivers_nVidia_base:
-  - nvidia-driver
-  - nvidia-driver-libs.i686
-
-drivers_kernel_args_nVidia:
-  - rd.driver.blacklist=nouveau
-  - modprobe.blacklist=nouveau
-  - nvidia-drm.modeset=1
-
-drivers_nVidia_extra: []
-

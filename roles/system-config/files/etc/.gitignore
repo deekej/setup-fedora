@@ -52,7 +52,7 @@ check_mk/logwatch.state
 DEADJOE
 
 # end section managed by etckeeper
-
+# --------------------------------
 # Add .etckeeper containging files permissions info:
 ! .etckeeper
 
@@ -61,15 +61,16 @@ DEADJOE
 
 # Some of the files in profile.d are managed by a separate sub-repository:
 profile.d/.git*
-profile.d/default-bash-prompt.sh
-profile.d/default-config.sh
+profile.d/bash-default-config.sh
+profile.d/bash-default-prompt.sh
 profile.d/fortune-cookie.sh
 profile.d/git-prompt.sh
 profile.d/global-aliases.sh
 profile.d/global-environment.sh
+profile.d/global-functions.sh
 
 # Auxiliary files for system setup:
-.setup/*
+.initial-setup
 
 # E-mail aliases database:
 aliases.db
@@ -93,11 +94,6 @@ sysconfig/network-scripts/*.bak
 sysconfig/network-scripts/ifcfg-*
 sysconfig/network-scripts/keys-*
 NetworkManager/system-connections/*
-
-# Ignore active profile of tuned:
-modprobe.d/tuned.conf
-tuned/active_profile
-tuned/profile_mode
 
 # Ignore systemd-oomd related changes:
 systemd/system.control/*

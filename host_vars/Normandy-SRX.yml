@@ -7,8 +7,8 @@ hostname_FQDN:  Normandy-SRX.deekej.io
 
 kickstart_network_hostname: Normandy-SRX.deekej.io
 kickstart_network_devices:
-  - wlp1s0        # WiFi
   - enp198s0f4u1  # Ethernet dongle
+  - wlp1s0        # WiFi
 
 # NOTE: The disk id needs to be manually specified before every installation!!
 kickstart_disk_id: nvme-eui.002538bc31b0c263
@@ -16,15 +16,6 @@ kickstart_disk_id: nvme-eui.002538bc31b0c263
 # ---| Partitions Configuration |----------------------------------------------
 NTFS_mounts:  false
 
-# ---| DNF repos configuration |-----------------------------------------------
-nVidia_drivers: false
-
-# ---| Layered packages configuration |----------------------------------------
-install_drivers:  false
-
-# ---| Flatpak packages configuration |----------------------------------------
-
 # ---| System configuration |--------------------------------------------------
 laptop_config:        true
 redhat_work_config:   true
-#CUPS_on_LDAP_server:  true

@@ -1,6 +1,7 @@
 ---
 # vim: filetype=yaml.ansible
 # --------------------------
+# Users configuration.
 
 - name: Generate salted password hash for '{ username }}'
   shell: echo "{{ user_password_plain }}" | mkpasswd --method=yescrypt --stdin
@@ -38,12 +39,13 @@
 
 - name: Update the 'root' user password
   user:
-    comment:  root
-    name:     root
-    uid:      0
-    group:    0
-    password: "{{ root_password_hash }}"
-    shell:    "{{ root_login_shell }}"
+    comment:        root
+    name:           root
+    uid:            0
+    group:          0
+    password:       "{{ root_password_hash }}"
+    password_lock:  "{{ root_password_lock }}"
+    shell:          "{{ (initial_setup|bool) | ternary('/bin/bash', root_login_shell) }}"
 
 # -----------------------------------------------------------------------------
 
